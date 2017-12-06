@@ -93,6 +93,11 @@
 
 
     //Helper functions
+    self.webgazer.util.gaussianBlur = function(imageData, imageWidth, imageHeight) {
+      var blurDiameter = 3;
+      return tracking.Image.blur(imageData, imageWidth, imageHeight, blurDiameter);
+    };
+
     /**
      * Grayscales an image patch. Can be used for the whole canvas, detected face, detected eye, etc.
      * @param  {Array} imageData - image data to be grayscaled

@@ -96,12 +96,31 @@
             return eyesObj;
         }
         if (!eyesObj.left.blink) {
-            eyesObj.left.pupil = getSinglePupil(Array.prototype.slice.call(webgazer.util.grayscale(eyesObj.left.patch.data, eyesObj.left.width, eyesObj.left.height)), eyesObj.left.width, eyesObj.left.height);
+            eyesObj.left.pupil = getSinglePupil(
+              Array.prototype.slice.call(
+                webgazer.util.gaussianBlur(
+                  webgazer.util.grayscale(eyesObj.left.patch.data, eyesObj.left.width, eyesObj.left.height),
+                  eyesObj.left.width,
+                  eyesObj.left.height
+                )
+              ),
+              eyesObj.left.width,
+              eyesObj.left.height
+            );
             eyesObj.left.pupil[0][0] -= eyesObj.left.pupil[1];
             eyesObj.left.pupil[0][1] -= eyesObj.left.pupil[1];
         }
         if (!eyesObj.right.blink) {
-            eyesObj.right.pupil = getSinglePupil(Array.prototype.slice.call(webgazer.util.grayscale(eyesObj.right.patch.data, eyesObj.right.width, eyesObj.right.height)), eyesObj.right.width, eyesObj.right.height);
+            eyesObj.right.pupil = getSinglePupil(
+              Array.prototype.slice.call(
+                webgazer.util.gaussianBlur(
+                  webgazer.util.grayscale(eyesObj.right.patch.data, eyesObj.right.width, eyesObj.right.height),
+                  eyesObj.right.width,
+                  eyesObj.right.height)
+              ),
+              eyesObj.right.width,
+              eyesObj.right.height
+            );
             eyesObj.right.pupil[0][0] -= eyesObj.right.pupil[1];
             eyesObj.right.pupil[0][1] -= eyesObj.right.pupil[1];
         }

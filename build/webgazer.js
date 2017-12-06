@@ -9223,12 +9223,31 @@ var mosseFilterResponses = function() {
             return eyesObj;
         }
         if (!eyesObj.left.blink) {
-            eyesObj.left.pupil = getSinglePupil(Array.prototype.slice.call(webgazer.util.grayscale(eyesObj.left.patch.data, eyesObj.left.width, eyesObj.left.height)), eyesObj.left.width, eyesObj.left.height);
+            eyesObj.left.pupil = getSinglePupil(
+              Array.prototype.slice.call(
+                webgazer.util.gaussianBlur(
+                  webgazer.util.grayscale(eyesObj.left.patch.data, eyesObj.left.width, eyesObj.left.height),
+                  eyesObj.left.width,
+                  eyesObj.left.height
+                )
+              ),
+              eyesObj.left.width,
+              eyesObj.left.height
+            );
             eyesObj.left.pupil[0][0] -= eyesObj.left.pupil[1];
             eyesObj.left.pupil[0][1] -= eyesObj.left.pupil[1];
         }
         if (!eyesObj.right.blink) {
-            eyesObj.right.pupil = getSinglePupil(Array.prototype.slice.call(webgazer.util.grayscale(eyesObj.right.patch.data, eyesObj.right.width, eyesObj.right.height)), eyesObj.right.width, eyesObj.right.height);
+            eyesObj.right.pupil = getSinglePupil(
+              Array.prototype.slice.call(
+                webgazer.util.gaussianBlur(
+                  webgazer.util.grayscale(eyesObj.right.patch.data, eyesObj.right.width, eyesObj.right.height),
+                  eyesObj.right.width,
+                  eyesObj.right.height)
+              ),
+              eyesObj.right.width,
+              eyesObj.right.height
+            );
             eyesObj.right.pupil[0][0] -= eyesObj.right.pupil[1];
             eyesObj.right.pupil[0][1] -= eyesObj.right.pupil[1];
         }
@@ -10225,6 +10244,11 @@ var mosseFilterResponses = function() {
 
 
     //Helper functions
+    self.webgazer.util.gaussianBlur = function(imageData, imageWidth, imageHeight) {
+      var blurDiameter = 3;
+      return tracking.Image.blur(imageData, imageWidth, imageHeight, blurDiameter);
+    };
+
     /**
      * Grayscales an image patch. Can be used for the whole canvas, detected face, detected eye, etc.
      * @param  {Array} imageData - image data to be grayscaled
