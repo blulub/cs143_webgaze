@@ -95,6 +95,9 @@
         if (!eyesObj) {
             return eyesObj;
         }
+
+        // add a gaussian blur filter to hopefully get rid of noise from bad
+        // web cameras.
         if (!eyesObj.left.blink) {
             eyesObj.left.pupil = getSinglePupil(
               Array.prototype.slice.call(
