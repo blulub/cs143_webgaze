@@ -44,6 +44,9 @@
 
     var debugVideoLoc = '';
 
+    // ms
+    var baselineSamplingRate = 500;
+
     // loop parameters
     var clockStart = performance.now();
     webgazer.params.dataTimestep = 50;
@@ -55,7 +58,7 @@
     //Types that regression systems should handle
     //Describes the source of data so that regression systems may ignore or handle differently the various generating events
     var eventTypes = ['click', 'move'];
-    
+
     //movelistener timeout clock parameters
     var moveClock = performance.now();
     webgazer.params.moveTickSize = 50; //milliseconds
@@ -88,7 +91,7 @@
         'settings': {}
     };
 
-    
+
     //PRIVATE FUNCTIONS
 
     /**
@@ -164,9 +167,18 @@
      * Runs every available animation frame if webgazer is not paused
      */
     var smoothingVals = new webgazer.util.DataWindow(4);
+
+    // previous predicted position, used to calculate distance between predictions
+    var previousX = 0;
+    var previousY = 0;
+
     function loop() {
         var gazeData = getPrediction();
         var elapsedTime = performance.now() - clockStart;
+
+        // timeout before calling loop()
+        // modified according to distance between predictions
+        var timeout = 0;
 
         callback(gazeData, elapsedTime);
 
@@ -181,12 +193,27 @@
             }
             var pred = webgazer.util.bound({'x':x/len, 'y':y/len});
             gazeDot.style.transform = 'translate3d(' + pred.x + 'px,' + pred.y + 'px,0)';
+
+            // calculate euclidean distance between previous and current position
+            // then use that distance to adjust sampling rate
+            var distance = euclideanDistance(pred.x, pred.y, previousX, previousY);
+            previousX = pred.x;
+            previousY = pred.y;
+
+            timeout = adjustSampling(distance);
         }
 
         if (!paused) {
-            //setTimeout(loop, webgazer.params.dataTimestep);
-            requestAnimationFrame(loop);
+            setTimeout(loop, timeout);
         }
+    }
+
+    function euclideanDistance(currX, currY, prevX, prevY) {
+      return Math.sqrt(Math.pow((currX-prevX), 2) + Math.pow((currY-prevY), 2));
+    }
+
+    function adjustSampling(dist) {
+      return (1 / (dist + 1)) * baselineSamplingRate;
     }
 
     /**
@@ -324,7 +351,7 @@
         loop();
     }
 
-    
+
     //PUBLIC FUNCTIONS - CONTROL
 
     /**
@@ -420,7 +447,7 @@
         return webgazer;
     };
 
-    
+
     //PUBLIC FUNCTIONS - DEBUG
 
     /**
@@ -486,7 +513,7 @@
         return webgazer;
     };
 
-    
+
     //SETTERS
     /**
      * Sets the tracking module
@@ -548,7 +575,7 @@
             return new constructor();
         };
     };
-    
+
     /**
      * Adds a new regression module to the list of regression modules, seeding its data from the first regression module
      * @param {string} name - the string name of the regression module to add
@@ -581,7 +608,7 @@
         return webgazer;
     };
 
-    
+
     //GETTERS
     /**
      * Returns the tracker currently in use
@@ -614,5 +641,5 @@
     webgazer.params.getEventTypes = function() {
         return eventTypes.slice();
     }
-    
+
 }(window));
